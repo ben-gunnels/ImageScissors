@@ -2,18 +2,25 @@ import tkinter as tk
 from tkinter import filedialog
 from PIL import Image, ImageTk, ImageEnhance
 import matplotlib.pyplot as plt
+from .config import WINDOW_SIZE
+from .FileUpload import FileUpload
+from .Rescale import Rescale
 # Create main window
 
 class App:
     def __init__(self, root):
         self.root = root
         self.root.title("Photo Editor")
-        self.root.geometry("800x600")
+        self.root.geometry(WINDOW_SIZE)
 
         self.image = None
         self.tk_image = None
         self.canvas = tk.Canvas(root, bg="gray")
         self.canvas.pack(fill=tk.BOTH, expand=True)
+
+        # Local objects
+        self.uploader = FileUpload()
+        self.rescale = Rescale()
 
         # Buttons
         btn_frame = tk.Frame(root)
@@ -27,17 +34,22 @@ class App:
 
         btn_save = tk.Button(btn_frame, text="Save", command=self.save_image)
         btn_save.pack(side=tk.LEFT, padx=5, pady=5)
-        
+
     def open_image(self):
-        file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.bmp;*.gif")])
+        file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;")])
         if file_path:
             self.image = Image.open(file_path)
+            self.rescale_image()  
             self.display_image()
+
+    def rescale_image(self):
+        if self.image:
+            self.image = self.rescale.rescale_image(self.image)
 
     def display_image(self):
         if self.image:
             self.tk_image = ImageTk.PhotoImage(self.image)
-            self.canvas.create_image(400, 300, image=self.tk_image, anchor=tk.CENTER)
+            self.canvas.create_image(self.rescale.new_size[0], self.rescale.new_size[1], image=self.tk_image, anchor=tk.CENTER)
 
     def apply_grayscale(self):
         if self.image:
