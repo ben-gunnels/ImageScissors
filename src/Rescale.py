@@ -3,23 +3,21 @@ from PIL import Image, ImageTk, ImageEnhance
 
 class Rescale:
     def __init__(self):
-        self.size = (self._parse_size())
         self.new_size = None
 
-    def rescale_image(self, image):
-        if image.size[1] > self.size[1]:
-            scale_ratio = self._get_ratio(image.size)
+    def rescale_image(self, window_size: tuple, image):
+        if image.size[1] > window_size[1]:
+            scale_ratio = self._get_ratio(window_size, image.size)
             new_size = (int(image.size[0] * scale_ratio), int(image.size[1] * scale_ratio))
             self.new_size = new_size
+            self.anchor = self._get_anchor()
             return image.resize(new_size)
 
-    def _get_ratio(self, size):
-        return self.size[1] / size[1]
-
-
-    def _parse_size(self):
-        assert(len(WINDOW_SIZE.split("x")) == 2)
-        return tuple(int(sz) for sz in WINDOW_SIZE.split("x"))
+    def _get_ratio(self, window_size, image_size):
+        return window_size[1] / image_size[1]
+    
+    def _get_anchor(self):
+        return (self.new_size[0] // 2, self.new_size[1] // 2)
 
 
 def main():

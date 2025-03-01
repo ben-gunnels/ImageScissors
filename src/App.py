@@ -35,6 +35,9 @@ class App:
         btn_save = tk.Button(btn_frame, text="Save", command=self.save_image)
         btn_save.pack(side=tk.LEFT, padx=5, pady=5)
 
+        # self.canvas.bind("<Configure>", self.on_resize)
+
+
     def open_image(self):
         file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;")])
         if file_path:
@@ -44,12 +47,12 @@ class App:
 
     def rescale_image(self):
         if self.image:
-            self.image = self.rescale.rescale_image(self.image)
+            self.image = self.rescale.rescale_image((self.canvas.winfo_width(), self.canvas.winfo_height()), self.image)
 
     def display_image(self):
         if self.image:
             self.tk_image = ImageTk.PhotoImage(self.image)
-            self.canvas.create_image(self.rescale.new_size[0], self.rescale.new_size[1], image=self.tk_image, anchor=tk.CENTER)
+            self.canvas.create_image(self.rescale.anchor[0], self.rescale.anchor[1], image=self.tk_image, anchor=tk.CENTER)
 
     def apply_grayscale(self):
         if self.image:
@@ -64,6 +67,11 @@ class App:
                                                                 ("All Files", "*.*")])
             if save_path:
                 self.image.save(save_path)
+
+    def on_resize(self, event):
+        self.canvas.config(width=event.width, height=event.height)
+        if self.image:
+            self.rescale.rescale_image((self.canvas.winfo_width(), self.canvas.winfo_height()), self.image)
 
 if __name__ == "__main__":
     root = tk.Tk()
