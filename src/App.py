@@ -14,6 +14,7 @@ class App:
         self.root.geometry(WINDOW_SIZE)
 
         self.image = None
+        self.scaled_image = None
         self.tk_image = None
         self.canvas = tk.Canvas(root, bg="gray")
         self.canvas.pack(fill=tk.BOTH, expand=True)
@@ -35,7 +36,7 @@ class App:
         btn_save = tk.Button(btn_frame, text="Save", command=self.save_image)
         btn_save.pack(side=tk.LEFT, padx=5, pady=5)
 
-        # self.canvas.bind("<Configure>", self.on_resize)
+        self.canvas.bind("<Configure>", self.on_resize)
 
 
     def open_image(self):
@@ -47,11 +48,11 @@ class App:
 
     def rescale_image(self):
         if self.image:
-            self.image = self.rescale.rescale_image((self.canvas.winfo_width(), self.canvas.winfo_height()), self.image)
+            self.scaled_image = self.rescale.rescale_image((self.canvas.winfo_width(), self.canvas.winfo_height()), self.image)
 
     def display_image(self):
-        if self.image:
-            self.tk_image = ImageTk.PhotoImage(self.image)
+        if self.scaled_image:
+            self.tk_image = ImageTk.PhotoImage(self.scaled_image)
             self.canvas.create_image(self.rescale.anchor[0], self.rescale.anchor[1], image=self.tk_image, anchor=tk.CENTER)
 
     def apply_grayscale(self):
@@ -60,18 +61,23 @@ class App:
             self.display_image()
 
     def save_image(self):
-        if self.image:
+        if self.scaled_image:
             save_path = filedialog.asksaveasfilename(defaultextension=".png",
                                                      filetypes=[("PNG files", "*.png"),
                                                                 ("JPEG files", "*.jpg"),
                                                                 ("All Files", "*.*")])
             if save_path:
-                self.image.save(save_path)
+                self.scaled_image.save(save_path)
 
     def on_resize(self, event):
-        self.canvas.config(width=event.width, height=event.height)
-        if self.image:
-            self.rescale.rescale_image((self.canvas.winfo_width(), self.canvas.winfo_height()), self.image)
+        # Ensure the canvas does not overlap the button frame
+        canvas_height = event.height  # Adjust only if needed
+        canvas_width = event.width
+
+        # If an image exists, resize it
+        if hasattr(self, 'scaled_image') and self.scaled_image:
+            self.rescale_image()
+            self.display_image()
 
 if __name__ == "__main__":
     root = tk.Tk()
