@@ -141,7 +141,7 @@ class App:
             Handles the functionality for an Enter button click if there is a rectangle created around an image. 
         """
         if self.rect:
-            self.scaled_image = self.image_scissor.create_mask(self.scaled_image, self.rect, self.rescale.anchor)
+            self.scaled_image = self.image_scissor.cut_image(self.scaled_image, self.rect, self.rescale.anchor)
             self.clear_scissor()
             self.display_image()
 
